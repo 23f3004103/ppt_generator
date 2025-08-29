@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Text, Your Style - PowerPoint Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.39.0/build/docxtemplater.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎨 Your Text, Your Style</h1>
+            <p class="subtitle">Auto-Generate PowerPoint Presentations from Text</p>
+            <p class="description">Transform any text into a professionally formatted presentation that matches your chosen template's style</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="step-indicator">
+                    <div class="step active" data-step="1">
+                        <span class="step-number">1</span>
+                        <span class="step-title">Input Text</span>
+                    </div>
+                    <div class="step" data-step="2">
+                        <span class="step-number">2</span>
+                        <span class="step-title">Configure AI</span>
+                    </div>
+                    <div class="step" data-step="3">
+                        <span class="step-number">3</span>
+                        <span class="step-title">Upload Template</span>
+                    </div>
+                    <div class="step" data-step="4">
+                        <span class="step-number">4</span>
+                        <span class="step-title">Generate</span>
+                    </div>
+                </div>
+
+                <div class="form-section" id="step1">
+                    <h2>📝 Step 1: Input Your Content</h2>
+                    
+                    <div class="input-group">
+                        <label for="inputText">Paste your text content (Markdown supported):</label>
+                        <textarea 
+                            id="inputText" 
+                            placeholder="Paste your large chunk of text here. Can be markdown, prose, or any content you want to turn into slides..."
+                            rows="12"
+                        ></textarea>
+                        <div class="char-count">
+                            <span id="charCount">0</span> characters
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="guidance">Optional guidance (one-line instruction):</label>
+                        <input 
+                            type="text" 
+                            id="guidance" 
+                            placeholder="e.g., 'turn into an investor pitch deck', 'make it technical and detailed', 'casual training presentation'"
+                        />
+                    </div>
+
+                    <div class="preset-guidance">
+                        <h4>Quick Presets:</h4>
+                        <div class="preset-buttons">
+                            <button class="preset-btn" data-preset="turn into an investor pitch deck">💼 Investor Pitch</button>
+                            <button class="preset-btn" data-preset="make it a technical presentation">⚙️ Technical</button>
+                            <button class="preset-btn" data-preset="create a training presentation">🎓 Training</button>
+                            <button class="preset-btn" data-preset="design a sales presentation">💰 Sales Deck</button>
+                            <button class="preset-btn" data-preset="make it a research summary">🔬 Research</button>
+                        </div>
+                    </div>
+
+                    <button class="next-btn" onclick="nextStep(2)">Next: Configure AI →</button>
+                </div>
+
+                <div class="form-section hidden" id="step2">
+                    <h2>🤖 Step 2: AI Configuration</h2>
+                    
+                    <div class="input-group">
+                        <label for="llmProvider">Choose your LLM provider:</label>
+                        <select id="llmProvider">
+                            <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
+                            <option value="google">Google (Gemini)</option>
+                            <option value="nvidia">NVIDIA (Llama 3.3 70B)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="apiKey">Enter your API key:</label>
+                        <input 
+                            type="password" 
+                            id="apiKey" 
+                            placeholder="Your API key (never stored or logged)"
+                        />
+                        <small class="security-note">🔒 Your API key is never stored and only used for this session</small>
+                    </div>
+
+                    <div class="api-info">
+                        <h4>Need an API key?</h4>
+                        <div class="api-links">
+                            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">🔗 Get OpenAI API Key</a>
+                            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">🔗 Get Google API Key</a>
+                            <a href="https://build.nvidia.com/explore/discover" target="_blank" rel="noopener">🔗 Get NVIDIA API Key</a>
+                        </div>
+                    </div>
+
+                    <div class="navigation-buttons">
+                        <button class="prev-btn" onclick="prevStep(1)">← Previous</button>
+                        <button class="next-btn" onclick="nextStep(3)">Next: Upload Template →</button>
+                    </div>
+                </div>
+
+                <div class="form-section hidden" id="step3">
+                    <h2>📊 Step 3: Upload PowerPoint Template</h2>
+                    
+                    <div class="upload-area" id="templateUpload">
+                        <div class="upload-content">
+                            <div class="upload-icon">📁</div>
+                            <h3>Drag & Drop your PowerPoint template</h3>
+                            <p>Or click to browse for .pptx or .potx files</p>
+                            <input type="file" id="templateFile" accept=".pptx,.potx" hidden>
+                            <button class="upload-btn" onclick="document.getElementById('templateFile').click()">
+                                Choose Template File
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="template-info hidden" id="templateInfo">
+                        <h4>Template Information:</h4>
+                        <div id="templateDetails"></div>
+                    </div>
+
+                    <div class="sample-templates">
+                        <h4>Don't have a template? Try our samples:</h4>
+                        <div class="sample-buttons">
+                            <button class="sample-btn" data-template="corporate">🏢 Corporate</button>
+                            <button class="sample-btn" data-template="modern">✨ Modern</button>
+                            <button class="sample-btn" data-template="minimal">⚪ Minimal</button>
+                            <button class="sample-btn" data-template="creative">🎨 Creative</button>
+                        </div>
+                    </div>
+
+                    <div class="navigation-buttons">
+                        <button class="prev-btn" onclick="prevStep(2)">← Previous</button>
+                        <button class="next-btn" onclick="nextStep(4)">Next: Generate →</button>
+                    </div>
+                </div>
+
+                <div class="form-section hidden" id="step4">
+                    <h2>🚀 Step 4: Generate Your Presentation</h2>
+                    
+                    <div class="generation-settings">
+                        <div class="input-group">
+                            <label for="slideCount">Preferred number of slides:</label>
+                            <select id="slideCount">
+                                <option value="auto">Auto-detect from content</option>
+                                <option value="5">~5 slides</option>
+                                <option value="10">~10 slides</option>
+                                <option value="15">~15 slides</option>
+                                <option value="20">~20 slides</option>
+                            </select>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="generateNotes" checked>
+                                Generate speaker notes
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="reuseImages" checked>
+                                Reuse images from template
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="generation-preview" id="generationPreview">
+                        <h4>Ready to Generate:</h4>
+                        <div class="preview-summary">
+                            <div class="summary-item">
+                                <span class="summary-label">Content:</span>
+                                <span class="summary-value" id="contentSummary">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">AI Provider:</span>
+                                <span class="summary-value" id="aiSummary">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Template:</span>
+                                <span class="summary-value" id="templateSummary">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="navigation-buttons">
+                        <button class="prev-btn" onclick="prevStep(3)">← Previous</button>
+                        <button class="generate-btn" id="generateBtn" onclick="generatePresentation()">
+                            🎨 Generate Presentation
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="output-section">
+                <div class="progress-panel" id="progressPanel">
+                    <h3>Generation Progress</h3>
+                    <div class="progress-steps">
+                        <div class="progress-step" id="step-analyze">
+                            <span class="progress-icon">🔍</span>
+                            <span class="progress-text">Analyzing content...</span>
+                        </div>
+                        <div class="progress-step" id="step-structure">
+                            <span class="progress-icon">📋</span>
+                            <span class="progress-text">Structuring slides...</span>
+                        </div>
+                        <div class="progress-step" id="step-template">
+                            <span class="progress-icon">🎨</span>
+                            <span class="progress-text">Applying template...</span>
+                        </div>
+                        <div class="progress-step" id="step-generate">
+                            <span class="progress-icon">⚡</span>
+                            <span class="progress-text">Generating presentation...</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="result-panel hidden" id="resultPanel">
+                    <h3>✅ Presentation Generated!</h3>
+                    <div class="result-info">
+                        <p>Your presentation has been successfully generated and is ready for download.</p>
+                        <div class="slide-count-info">
+                            <span id="finalSlideCount">-</span> slides created
+                        </div>
+                    </div>
+                    <div class="download-actions">
+                        <button class="download-btn" id="downloadBtn">
+                            📥 Download Presentation
+                        </button>
+                        <button class="preview-btn" id="previewBtn">
+                            👁️ Preview Slides
+                        </button>
+                        <button class="restart-btn" onclick="restartProcess()">
+                            🔄 Create Another
+                        </button>
+                    </div>
+                </div>
+
+                <div class="preview-panel hidden" id="previewPanel">
+                    <h3>📑 Slide Preview</h3>
+                    <div class="slide-navigator">
+                        <button class="nav-btn" id="prevSlide">←</button>
+                        <span class="slide-counter">
+                            <span id="currentSlide">1</span> / <span id="totalSlides">1</span>
+                        </span>
+                        <button class="nav-btn" id="nextSlide">→</button>
+                    </div>
+                    <div class="slide-preview-area">
+                        <div id="slideContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Your Text, Your Style - Open Source PowerPoint Generator</p>
+            <div class="footer-links">
+                <a href="https://github.com/example/text-to-ppt" target="_blank" rel="noopener">📁 GitHub Repository</a>
+                <a href="#" onclick="showHelp()">❓ Help & Documentation</a>
+                <a href="#" onclick="showPrivacy()">🔒 Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
